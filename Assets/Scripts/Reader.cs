@@ -1,12 +1,13 @@
-using UnityEngine;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using System.IO;
-using System.Collections.Generic;
-using TMPro;
-using System.Linq;
-using UnityEngine.UI;
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using TMPro;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class Reader : MonoBehaviour
 {
@@ -41,18 +42,8 @@ public class Reader : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        Scenes = JsonConvert.DeserializeObject<List<Scene>>(Resources.Load<TextAsset>("jsconfig1").text);
+        Scenes = JsonConvert.DeserializeObject<List<Scene>>(Resources.Load<TextAsset>("MainConfig").text);
 
-        if (PlayerPrefs.GetInt("NewGame") == 1)
-        {
-            MainScene = Scenes[PlayerPrefs.GetInt("Scene")];
-            indexReplic = PlayerPrefs.GetInt("Replic");
-        }
-        else
-        {
-            MainScene = Scenes[0];
-            indexReplic = 0;
-        }
         DrawScene();
         StartCoroutine(WriteText());
     }
@@ -94,13 +85,13 @@ public class Reader : MonoBehaviour
         }
     }
 
-    public void OpenSetting()
+    public void OpenSetting() // Открытие окна настроек
     {
         panelMenu.SetActive(false);
         panelSetting.SetActive(true);
     }
 
-    public void ClickContinue()
+    public void ClickContinue() // Нажатие на кнопку продолжить
     {
         panelMenu.SetActive(false);
         ButtonBack.SetActive(true);
@@ -108,15 +99,19 @@ public class Reader : MonoBehaviour
         openMenu = false;
     }
 
-    public void ClickExit()
+    public void ClickExit() // Нажатие на кнопку выход
     {
-        PlayerPrefs.SetInt("Scene", MainScene.Id);
-        PlayerPrefs.SetInt("Replic", indexReplic);
         PlayerPrefs.Save();
-        Application.Quit();
+        SaveProgress();
+        SceneManager.LoadScene("Start");
     }
 
-    public void NextReplic()
+    public void SaveProgress()
+    {
+
+    }
+
+    public void NextReplic() // Переход к следующей реплике
     {
         if (indexReplic < MainScene.Replics.Count() - 1)
         {
@@ -164,7 +159,7 @@ public class Reader : MonoBehaviour
         }
     }
 
-    public void ClickChoise(UnityEngine.UI.Button button)
+    public void ClickChoise(UnityEngine.UI.Button button) // Нажатие в окне выбора
     {
         panelChoise2.SetActive(false);
         panelChoise3.SetActive(false);
@@ -183,7 +178,7 @@ public class Reader : MonoBehaviour
             StopWrite();
     }
 
-    public void BackReplic()
+    public void BackReplic() // Предыдущая реплика
     {
         if (indexReplic > 0)
         {
@@ -193,9 +188,9 @@ public class Reader : MonoBehaviour
         }
     }
 
-    void DrawScene()
+    void DrawScene() // Перерисовка сцены (при переходе к другой сцене, а не реплике !!!)
     {
-        nameMesh.text = MainScene.Replics[indexReplic].Name;
+        nameMesh.text = MainScene.Replics[indexReplic].Name;        
 
         DrawPerson();
 
@@ -218,19 +213,19 @@ public class Reader : MonoBehaviour
         backGround.sprite = SearchBackground(MainScene.Background);
     }
 
-    AudioClip SearchMusic()
+    AudioClip SearchMusic() // Поиск музыки
     {
         var m = Resources.Load<AudioClip>("Music\\" + MainScene.Music);
         return m;
     }
 
-    AudioClip SearchSound()
+    AudioClip SearchSound() // Поиск звука
     {
         var m = Resources.Load<AudioClip>("Sound\\" + MainScene.Music);
         return m;
     }
 
-    void DrawPerson()
+    void DrawPerson() // Прорисковка персонажей на экране их места
     {
         if(MainScene.Replics[indexReplic].Sprite.Count() == 0)
         {
@@ -274,19 +269,19 @@ public class Reader : MonoBehaviour
         }
     }
 
-    UnityEngine.Sprite SearchSprite(Sprite s)
+    UnityEngine.Sprite SearchSprite(Sprite s) // Поиск спрайтов персонажей
     {
         var sprite = Resources.Load<UnityEngine.Sprite>("Images\\Sprites\\" + s.Name + "\\" + s.Number);
         return sprite;
     }
 
-    UnityEngine.Sprite SearchBackground(int number)
+    UnityEngine.Sprite SearchBackground(int number) // Поиск фона
     {
         var sprite = Resources.Load<UnityEngine.Sprite>("Images\\Background\\" + number);
         return sprite;
     }
 
-    void DrawChoise()
+    void DrawChoise() // Прорисовка окна выбора
     {
         ButtonNext.SetActive(false);
 
@@ -332,7 +327,7 @@ public class Reader : MonoBehaviour
         }
     }
 
-    System.Collections.IEnumerator WriteText()
+    System.Collections.IEnumerator WriteText() // Вывод текста плавно 
     {
         textMesh.text = "";
 
@@ -349,7 +344,7 @@ public class Reader : MonoBehaviour
         flagWrite = false;
     }
 
-    void StopWrite()
+    void StopWrite() // В случае повторного нажатия при идущем выводе текста
     {
         StopAllCoroutines();
         textMesh.text = MainScene.Replics[indexReplic].Text;

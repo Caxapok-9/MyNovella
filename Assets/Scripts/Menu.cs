@@ -9,59 +9,39 @@ using UnityEditor;
 
 public class Menu : MonoBehaviour
 {
-    public GameObject panelNewGame;
-
-    public UnityEngine.UI.Button buttonContinue;
+    public GameObject panelSave, panelSetting;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        if (PlayerPrefs.GetInt("NewGame") == 1)
-            buttonContinue.enabled = true;
-        else
-            buttonContinue.enabled = false;        
+        
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        
-            
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            if(panelSetting.activeSelf)
+                panelSetting.SetActive(false);
+
+            if(panelSave.activeSelf)
+                panelSave.SetActive(false);
+        }
     }
 
     public void ClickExit()
     {
+        PlayerPrefs.Save();
         Application.Quit();
     }
 
-    public void ClickContinue()
+    public void ClickGame()
     {
-        SceneManager.LoadScene("SampleScene");
+        panelSave.SetActive(true);
     }
 
-    public void ClickNewGame()
+    public void ClickSetting()
     {
-        if(PlayerPrefs.GetInt("NewGame") == 1)
-        {
-            panelNewGame.SetActive(true);
-        }
-        else
-        {
-            PlayerPrefs.SetInt("NewGame", 1);
-            SceneManager.LoadScene("SampleScene");
-        }
-    }
-
-    public void ClickYes()
-    {
-        PlayerPrefs.SetInt("NewGame", 1);
-        PlayerPrefs.DeleteKey("Scene");
-        PlayerPrefs.DeleteKey("Replic");
-        SceneManager.LoadScene("SampleScene");
-    }
-
-    public void ClickNo()
-    {
-        panelNewGame.SetActive(false);
+        panelSetting.SetActive(true);
     }
 }
